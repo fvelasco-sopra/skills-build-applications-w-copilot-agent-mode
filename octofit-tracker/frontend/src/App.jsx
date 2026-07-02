@@ -1,119 +1,65 @@
-import { useEffect, useState } from 'react'
+import { NavLink, Navigate, Route, Routes } from 'react-router-dom'
 import './App.css'
+import Activities from './components/Activities'
+import Leaderboard from './components/Leaderboard'
+import Teams from './components/Teams'
+import Users from './components/Users'
+import Workouts from './components/Workouts'
 
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL
+const links = [
+  { to: '/users', label: 'Users' },
+  { to: '/activities', label: 'Activities' },
+  { to: '/teams', label: 'Teams' },
+  { to: '/leaderboard', label: 'Leaderboard' },
+  { to: '/workouts', label: 'Workouts' },
+]
+
+const hasCodespaceName = Boolean(import.meta.env.VITE_CODESPACE_NAME?.trim())
 
 function App() {
-  const [apiSummary, setApiSummary] = useState({
-    status: 'Checking API connection...',
-    users: 0,
-    activities: 0,
-  })
-
-  useEffect(() => {
-    const loadApiSummary = async () => {
-      try {
-        const [usersResponse, activitiesResponse] = await Promise.all([
-          fetch(`${apiBaseUrl}/api/users`),
-          fetch(`${apiBaseUrl}/api/activities`),
-        ])
-
-        if (!usersResponse.ok || !activitiesResponse.ok) {
-          throw new Error('API request failed')
-        }
-
-        const [usersData, activitiesData] = await Promise.all([
-          usersResponse.json(),
-          activitiesResponse.json(),
-        ])
-
-        setApiSummary({
-          status: 'Backend API is ready to serve requests on port 8000.',
-          users: usersData.users.length,
-          activities: activitiesData.activities.length,
-        })
-      } catch {
-        setApiSummary({
-          status: 'Backend API is not reachable yet.',
-          users: 0,
-          activities: 0,
-        })
-      }
-    }
-
-    void loadApiSummary()
-  }, [])
-
   return (
     <main className="container py-5">
-      <div className="row align-items-center g-5">
-        <div className="col-lg-7">
-          <span className="badge bg-primary-subtle text-primary-emphasis rounded-pill mb-3">
-            OctoFit Tracker
-          </span>
-          <h1 className="display-4 fw-bold">Train smarter with a connected fitness hub.</h1>
-          <p className="lead text-muted mt-3">
-            Track workouts, celebrate milestones, and stay motivated with a modern multi-tier experience.
+      <header className="mb-4">
+        <h1 className="display-5 fw-bold mb-2">OctoFit Tracker</h1>
+        <p className="text-muted mb-0">
+          React 19 presentation tier for users, activities, teams, leaderboard, and workouts.
+        </p>
+      </header>
+
+      {!hasCodespaceName && (
+        <div className="alert alert-warning" role="alert">
+          <p className="mb-1 fw-semibold">VITE_CODESPACE_NAME is not set.</p>
+          <p className="mb-0 small">
+            Requests will fallback to http://localhost:8000/api/[component]/.
           </p>
-          <div className="d-flex gap-3 mt-4">
-            <a className="btn btn-primary btn-lg" href="#features">
-              Explore features
-            </a>
-            <a className="btn btn-outline-secondary btn-lg" href="#api">
-              API status
-            </a>
-          </div>
         </div>
-        <div className="col-lg-5">
-          <div className="card shadow-sm border-0">
-            <div className="card-body p-4">
-              <h2 className="h4 fw-semibold">Today at a glance</h2>
-              <ul className="list-group list-group-flush mt-3">
-                <li className="list-group-item px-0">12,450 steps logged</li>
-                <li className="list-group-item px-0">4 team challenges active</li>
-                <li className="list-group-item px-0">3 personal goals on track</li>
-              </ul>
-            </div>
-          </div>
+      )}
+
+      <nav className="nav nav-pills flex-wrap gap-2 mb-4" aria-label="Sections">
+        {links.map((link) => (
+          <NavLink
+            key={link.to}
+            className={({ isActive }) => `nav-link ${isActive ? 'active' : 'text-secondary'}`}
+            to={link.to}
+          >
+            {link.label}
+          </NavLink>
+        ))}
+      </nav>
+
+      <div className="card border-0 shadow-sm">
+        <div className="card-body p-4">
+          <Routes>
+            <Route path="/" element={<Navigate to="/users" replace />} />
+            <Route path="/users" element={<Users />} />
+            <Route path="/activities" element={<Activities />} />
+            <Route path="/teams" element={<Teams />} />
+            <Route path="/leaderboard" element={<Leaderboard />} />
+            <Route path="/workouts" element={<Workouts />} />
+            <Route path="*" element={<Navigate to="/users" replace />} />
+          </Routes>
         </div>
       </div>
-
-      <section id="features" className="row mt-5 g-4">
-        <div className="col-md-4">
-          <div className="card h-100 border-0 shadow-sm">
-            <div className="card-body">
-              <h3 className="h5">Activity logging</h3>
-              <p className="text-muted">Capture workouts and daily movement in one place.</p>
-            </div>
-          </div>
-        </div>
-        <div className="col-md-4">
-          <div className="card h-100 border-0 shadow-sm">
-            <div className="card-body">
-              <h3 className="h5">Team challenges</h3>
-              <p className="text-muted">Create competitions and keep motivation high.</p>
-            </div>
-          </div>
-        </div>
-        <div className="col-md-4">
-          <div className="card h-100 border-0 shadow-sm">
-            <div className="card-body">
-              <h3 className="h5">Personalized insights</h3>
-              <p className="text-muted">Receive smarter workout suggestions from your data.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="api" className="mt-5">
-        <div className="alert alert-success mb-0" role="status">
-          <p className="mb-2 fw-semibold">{apiSummary.status}</p>
-          <p className="mb-0 small text-break">API base URL: {apiBaseUrl}</p>
-          <p className="mb-0 small">
-            Users: {apiSummary.users} | Activities: {apiSummary.activities}
-          </p>
-        </div>
-      </section>
     </main>
   )
 }
