@@ -1,6 +1,49 @@
+import { useEffect, useState } from 'react'
 import './App.css'
 
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL
+
 function App() {
+  const [apiSummary, setApiSummary] = useState({
+    status: 'Checking API connection...',
+    users: 0,
+    activities: 0,
+  })
+
+  useEffect(() => {
+    const loadApiSummary = async () => {
+      try {
+        const [usersResponse, activitiesResponse] = await Promise.all([
+          fetch(`${apiBaseUrl}/api/users`),
+          fetch(`${apiBaseUrl}/api/activities`),
+        ])
+
+        if (!usersResponse.ok || !activitiesResponse.ok) {
+          throw new Error('API request failed')
+        }
+
+        const [usersData, activitiesData] = await Promise.all([
+          usersResponse.json(),
+          activitiesResponse.json(),
+        ])
+
+        setApiSummary({
+          status: 'Backend API is ready to serve requests on port 8000.',
+          users: usersData.users.length,
+          activities: activitiesData.activities.length,
+        })
+      } catch {
+        setApiSummary({
+          status: 'Backend API is not reachable yet.',
+          users: 0,
+          activities: 0,
+        })
+      }
+    }
+
+    void loadApiSummary()
+  }, [])
+
   return (
     <main className="container py-5">
       <div className="row align-items-center g-5">
@@ -63,8 +106,12 @@ function App() {
       </section>
 
       <section id="api" className="mt-5">
-        <div className="alert alert-success d-inline-block mb-0" role="status">
-          Backend API is ready to serve requests on port 8000.
+        <div className="alert alert-success mb-0" role="status">
+          <p className="mb-2 fw-semibold">{apiSummary.status}</p>
+          <p className="mb-0 small text-break">API base URL: {apiBaseUrl}</p>
+          <p className="mb-0 small">
+            Users: {apiSummary.users} | Activities: {apiSummary.activities}
+          </p>
         </div>
       </section>
     </main>
