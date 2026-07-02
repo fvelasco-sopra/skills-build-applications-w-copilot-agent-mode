@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const dotenv_1 = __importDefault(require("dotenv"));
 const mongoose_1 = __importDefault(require("mongoose"));
-const db_1 = require("../db");
+const database_1 = require("../database");
 const Activity_1 = require("../models/Activity");
 const Leaderboard_1 = require("../models/Leaderboard");
 const Team_1 = require("../models/Team");
@@ -14,7 +14,7 @@ const Workout_1 = require("../models/Workout");
 dotenv_1.default.config();
 async function seed() {
     console.log('Seed the octofit_db database with test data');
-    await (0, db_1.connectToDatabase)();
+    await (0, database_1.connectToDatabase)();
     await Promise.all([
         User_1.UserModel.deleteMany({}),
         Team_1.TeamModel.deleteMany({}),
@@ -47,7 +47,7 @@ async function seed() {
         { title: 'Endurance Builder', focus: 'Cardio', difficulty: 'Intermediate', durationMinutes: 40, exercises: ['Tempo run', 'Hill repeats', 'Cooldown jog'] },
         { title: 'Mobility Reset', focus: 'Recovery', difficulty: 'Beginner', durationMinutes: 25, exercises: ['Hip opener', 'Thoracic rotation', 'Hamstring stretch'] },
     ]);
-    console.log(`Seeded MongoDB at ${db_1.mongoUri}`);
+    console.log(`Seeded MongoDB at ${database_1.mongoUri}`);
 }
 seed()
     .catch((error) => {

@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const dotenv_1 = __importDefault(require("dotenv"));
-const db_1 = require("./db");
+const database_1 = require("./database");
 const Activity_1 = require("./models/Activity");
 const Leaderboard_1 = require("./models/Leaderboard");
 const Team_1 = require("./models/Team");
@@ -51,7 +51,7 @@ app.use((error, _req, res, _next) => {
     console.error(error);
     res.status(500).json({ message: 'Unexpected server error' });
 });
-(0, db_1.connectToDatabase)()
+(0, database_1.connectToDatabase)()
     .then(() => {
     app.listen(port, '0.0.0.0', () => {
         console.log(`OctoFit backend listening at ${apiBaseUrl}`);
